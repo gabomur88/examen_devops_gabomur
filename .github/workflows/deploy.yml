@@ -1,0 +1,31 @@
+name: Deploy Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Crear paquete
+        run: |
+          mkdir -p dist
+          zip -r dist/calculadora-python.zip calculadora.py README.md
+
+      - name: Crear GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            dist/calculadora-python.zip \
+            --title "Release ${{ github.ref_name }}" \
+            --generate-notes
